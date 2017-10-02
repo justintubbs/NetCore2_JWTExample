@@ -26,18 +26,7 @@ namespace WebApplication1
 #elif DEBUG
                 RequireHttpsMetadata = false,
 #endif
-                TokenValidationParameters = new TokenValidationParameters()
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = TokenBuilder.symmetricKey,
-                    ValidIssuer = "http://issuer.com",
-                    ValidateIssuer = true,
-                    ValidateLifetime = true,
-                    ValidAudience = "http://audience.com",
-                    ValidateAudience = true,
-                    ClockSkew = TimeSpan.Zero,
-                    RequireSignedTokens = true,
-                }
+                TokenValidationParameters = TokenBuilder.tokenValidationParams
             });
 
             // Add framework services.

@@ -12,6 +12,18 @@ namespace WebApplication1
         public static readonly byte[] symmetricKeyBytes = Encoding.ASCII.GetBytes("mysuperdupersecret");
         public static readonly SymmetricSecurityKey symmetricKey = new SymmetricSecurityKey(symmetricKeyBytes);
         public static readonly SigningCredentials signingCredentials = new SigningCredentials(symmetricKey, SecurityAlgorithms.HmacSha256Signature);
+        public static readonly TokenValidationParameters tokenValidationParams = new TokenValidationParameters()
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = symmetricKey,
+            ValidIssuer = "http://issuer.com",
+            ValidateIssuer = true,
+            ValidateLifetime = true,
+            ValidAudience = "http://audience.com",
+            ValidateAudience = true,
+            ClockSkew = TimeSpan.Zero,
+            RequireSignedTokens = true,
+        };
         public static string CreateJsonWebToken(
                string username,
                IEnumerable<string> roles,
