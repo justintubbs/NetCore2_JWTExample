@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,6 +28,11 @@ namespace WebApplication1
                 RequireHttpsMetadata = false,
 #endif
                 TokenValidationParameters = TokenBuilder.tokenValidationParams
+            });
+            
+            services.AddAuthorization(options =>
+            {
+                options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme).RequireAuthenticatedUser().Build();
             });
 
             // Add framework services.
