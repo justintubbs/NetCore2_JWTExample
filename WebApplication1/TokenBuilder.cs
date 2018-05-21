@@ -18,7 +18,7 @@ namespace WebApplication1
         internal static TokenValidationParameters tokenValidationParams;
         //Construct our JWT authentication paramaters then inject the parameters into the current TokenBuilder instance
         // If injecting an RSA key for signing use this method
-        // Be weary of common jwt trips: https://trustfoundry.net/jwt-hacking-101/
+        // Be weary of common jwt trips: https://trustfoundry.net/jwt-hacking-101/ and https://www.sjoerdlangkemper.nl/2016/09/28/attacking-jwt-authentication/
         //public static void ConfigureJwtAuthentication(this IServiceCollection services, RSAParameters rsaParams)
         public static void ConfigureJwtAuthentication(this IServiceCollection services)
         {
