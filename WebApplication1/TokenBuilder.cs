@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
 namespace WebApplication1
@@ -13,18 +15,41 @@ namespace WebApplication1
         public static readonly byte[] symmetricKeyBytes = Encoding.ASCII.GetBytes(keyString);
         public static readonly SymmetricSecurityKey symmetricKey = new SymmetricSecurityKey(symmetricKeyBytes);
         public static readonly SigningCredentials signingCredentials = new SigningCredentials(symmetricKey, SecurityAlgorithms.HmacSha256);
-        public static readonly TokenValidationParameters tokenValidationParams = new TokenValidationParameters()
+        internal static TokenValidationParameters tokenValidationParams;
+        //Construct our JWT authentication paramaters then inject the parameters into the current TokenBuilder instance
+        // If injecting an RSA key for signing use this method
+        // Be weary of common jwt trips: https://trustfoundry.net/jwt-hacking-101/ and https://www.sjoerdlangkemper.nl/2016/09/28/attacking-jwt-authentication/
+        //public static void ConfigureJwtAuthentication(this IServiceCollection services, RSAParameters rsaParams)
+        public static void ConfigureJwtAuthentication(this IServiceCollection services)
         {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = symmetricKey,
-            ValidIssuer = "http://issuer.com",
-            ValidateIssuer = true,
-            ValidateLifetime = true,
-            ValidAudience = "http://audience.com",
-            ValidateAudience = true,
-            ClockSkew = TimeSpan.Zero,
-            RequireSignedTokens = true,
-        };
+            tokenValidationParams = new TokenValidationParameters()
+            {
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = "http://issuer.com",
+                ValidateLifetime = true,
+                ValidAudience = "http://audience.com",
+                ValidateAudience = true,
+                RequireSignedTokens = true,
+                // Use our signing credentials key here
+                // optionally we can inject an RSA key as
+                //IssuerSigningKey = new RsaSecurityKey(rsaParams),
+                IssuerSigningKey = signingCredentials.Key,
+                ClockSkew = TimeSpan.FromMinutes(0)
+            };
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = tokenValidationParams;
+#if PROD || UAT
+                options.IncludeErrorDetails = false;
+#elif DEBUG
+                options.RequireHttpsMetadata = false;
+#endif
+            });
+        }
         public static string CreateJsonWebToken(
                string username,
                IEnumerable<string> roles,

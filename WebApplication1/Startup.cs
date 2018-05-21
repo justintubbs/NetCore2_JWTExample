@@ -15,21 +15,8 @@ namespace WebApplication1
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options => new JwtBearerOptions()
-            {
-#if PROD || UAT
-                IncludeErrorDetails = false,
-#elif DEBUG
-                RequireHttpsMetadata = false,
-#endif
-                TokenValidationParameters = TokenBuilder.tokenValidationParams
-            });
-            
+            //Set up our configuration for jwt tokens inside an extension method
+            services.ConfigureJwtAuthentication();
             services.AddAuthorization(options =>
             {
                 options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme).RequireAuthenticatedUser().Build();
